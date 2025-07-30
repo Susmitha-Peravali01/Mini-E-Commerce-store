@@ -22,6 +22,15 @@ $res = $stmt->get_result();
 if ($res->num_rows === 1) {
     $cart_id = $res->fetch_assoc()['CartID'];
 
+    if (isset($_GET['remove'])) {
+        $remove_id = intval($_GET['remove']);
+        $del_stmt = $conn->prepare("DELETE FROM CARTITEMS WHERE CartItemID = ? AND CartID = ?");
+        $del_stmt->bind_param("ii", $remove_id, $cart_id);
+        $del_stmt->execute();
+        header("Location: cart.php");
+        exit();
+    }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_qty'])) {
     list($action, $item_id) = explode('-', $_POST['update_qty']);
     $item_id = intval($item_id);
@@ -48,8 +57,6 @@ if ($res->num_rows === 1) {
     header("Location: cart.php");
     exit();
 }
-
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
         if (isset($_POST['selected_items']) && count($_POST['selected_items']) > 0) {
             $_SESSION['selected_items'] = $_POST['selected_items'];
@@ -120,6 +127,11 @@ if ($res->num_rows === 1) {
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
     <style>
+        * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
         body {
             font-family: Arial, sans-serif;
             background: #fff6f9;
